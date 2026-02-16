@@ -17,7 +17,7 @@ local KeyAuthURL = "https://keyauth.win/api/1.2/"
 -- ══════════════════════════════════════════
 --   LOADER (script que se carga si la key es válida)
 -- ══════════════════════════════════════════
-local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/denzells/serios.gg/main/main.lua"
+local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/denzells/panel/main/main.lua"
 
 -- ══════════════════════════════════════════
 --   HTTP REQUEST (compatibilidad multi-executor)
