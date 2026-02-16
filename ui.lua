@@ -1,6 +1,5 @@
 -- PANEL DE VERIFICACIÓN — UI
 -- Archivo: ui.lua
--- Carga config desde GitHub antes de construir la interfaz
 
 -- ══════════════════════════════════════════
 --   CARGAR CONFIG DESDE GITHUB
@@ -45,6 +44,7 @@ local C = {
     INPUT  = Color3.fromRGB(18, 18, 18),
     GREEN  = Color3.fromRGB(50, 200, 80),
     YELLOW = Color3.fromRGB(255, 200, 50),
+    SAVED  = Color3.fromRGB(50, 150, 255), -- azul para indicar datos guardados
 }
 
 -- ══════════════════════════════════════════
@@ -96,17 +96,17 @@ SG.Parent           = PlayerGui
 -- ══════════════════════════════════════════
 --   VENTANA PRINCIPAL
 -- ══════════════════════════════════════════
-local WW, WH = 320, 260
+local WW, WH = 320, 280   -- un poco más alto para el indicador de guardado
 local TH = 42
 
 local Win = mk("Frame", {
-    Size                 = UDim2.new(0, WW, 0, WH),
-    Position             = UDim2.new(0.5, -WW/2, 0.5, -WH/2),
-    BackgroundColor3     = C.WIN,
+    Size                   = UDim2.new(0, WW, 0, WH),
+    Position               = UDim2.new(0.5, -WW/2, 0.5, -WH/2),
+    BackgroundColor3       = C.WIN,
     BackgroundTransparency = 0.15,
-    BorderSizePixel      = 0,
-    ClipsDescendants     = false,
-    ZIndex               = 3,
+    BorderSizePixel        = 0,
+    ClipsDescendants       = false,
+    ZIndex                 = 3,
 }, SG)
 rnd(14, Win)
 
@@ -120,28 +120,26 @@ local WinStroke = mk("UIStroke", {
 --   TITLEBAR
 -- ══════════════════════════════════════════
 local TBar = mk("Frame", {
-    Size                 = UDim2.new(1, 0, 0, TH),
-    BackgroundColor3     = C.TBAR,
+    Size                   = UDim2.new(1, 0, 0, TH),
+    BackgroundColor3       = C.TBAR,
     BackgroundTransparency = 0.1,
-    BorderSizePixel      = 0,
-    ZIndex               = 6,
-    ClipsDescendants     = false,
-    Active               = true,
+    BorderSizePixel        = 0,
+    ZIndex                 = 6,
+    ClipsDescendants       = false,
+    Active                 = true,
 }, Win)
 rnd(14, TBar)
 
--- Relleno inferior del titlebar (para que no se vea redondeado abajo)
 mk("Frame", {
-    Size                 = UDim2.new(1, 0, 0, 14),
-    Position             = UDim2.new(0, 0, 1, -14),
-    BackgroundColor3     = C.TBAR,
+    Size                   = UDim2.new(1, 0, 0, 14),
+    Position               = UDim2.new(0, 0, 1, -14),
+    BackgroundColor3       = C.TBAR,
     BackgroundTransparency = 0.1,
-    BorderSizePixel      = 0,
-    ZIndex               = 5,
-    Active               = false,
+    BorderSizePixel        = 0,
+    ZIndex                 = 5,
+    Active                 = false,
 }, TBar)
 
--- Punto rojo decorativo
 local rdot = mk("Frame", {
     Size             = UDim2.new(0, 10, 0, 10),
     Position         = UDim2.new(0, 14, 0.5, -5),
@@ -151,58 +149,57 @@ local rdot = mk("Frame", {
 }, TBar)
 rnd(5, rdot)
 
--- Título
 local title1 = mk("TextLabel", {
-    Text                = "serios.gg",
-    Font                = Enum.Font.GothamBold,
-    TextSize            = 13,
-    TextColor3          = C.WHITE,
+    Text                   = "serios.gg",
+    Font                   = Enum.Font.GothamBold,
+    TextSize               = 13,
+    TextColor3             = C.WHITE,
     BackgroundTransparency = 1,
-    Size                = UDim2.new(0, 100, 0, TH),
-    Position            = UDim2.new(0, 30, 0, 0),
-    TextXAlignment      = Enum.TextXAlignment.Left,
-    ZIndex              = 8
+    Size                   = UDim2.new(0, 100, 0, TH),
+    Position               = UDim2.new(0, 30, 0, 0),
+    TextXAlignment         = Enum.TextXAlignment.Left,
+    ZIndex                 = 8
 }, TBar)
 
 local title2 = mk("TextLabel", {
-    Text                = "|",
-    Font                = Enum.Font.GothamBold,
-    TextSize            = 16,
-    TextColor3          = C.RED,
+    Text                   = "|",
+    Font                   = Enum.Font.GothamBold,
+    TextSize               = 16,
+    TextColor3             = C.RED,
     BackgroundTransparency = 1,
-    Size                = UDim2.new(0, 14, 0, TH),
-    Position            = UDim2.new(0, 133, 0, 0),
-    TextXAlignment      = Enum.TextXAlignment.Left,
-    ZIndex              = 8
+    Size                   = UDim2.new(0, 14, 0, TH),
+    Position               = UDim2.new(0, 133, 0, 0),
+    TextXAlignment         = Enum.TextXAlignment.Left,
+    ZIndex                 = 8
 }, TBar)
 
 -- ══════════════════════════════════════════
 --   BOTONES MINIMIZE / CLOSE
 -- ══════════════════════════════════════════
 local MinB = mk("TextButton", {
-    Text               = "─",
-    Font               = Enum.Font.GothamBold,
-    TextSize           = 16,
-    TextColor3         = C.GRAY,
+    Text                   = "─",
+    Font                   = Enum.Font.GothamBold,
+    TextSize               = 16,
+    TextColor3             = C.GRAY,
     BackgroundTransparency = 1,
-    BorderSizePixel    = 0,
-    Size               = UDim2.new(0, 36, 0, TH),
-    Position           = UDim2.new(0, WW-72, 0, 0),
-    ZIndex             = 8,
-    AutoButtonColor    = false
+    BorderSizePixel        = 0,
+    Size                   = UDim2.new(0, 36, 0, TH),
+    Position               = UDim2.new(0, WW-72, 0, 0),
+    ZIndex                 = 8,
+    AutoButtonColor        = false
 }, TBar)
 
 local ClsB = mk("TextButton", {
-    Text               = "×",
-    Font               = Enum.Font.GothamBold,
-    TextSize           = 22,
-    TextColor3         = C.GRAY,
+    Text                   = "×",
+    Font                   = Enum.Font.GothamBold,
+    TextSize               = 22,
+    TextColor3             = C.GRAY,
     BackgroundTransparency = 1,
-    BorderSizePixel    = 0,
-    Size               = UDim2.new(0, 36, 0, TH),
-    Position           = UDim2.new(0, WW-36, 0, 0),
-    ZIndex             = 8,
-    AutoButtonColor    = false
+    BorderSizePixel        = 0,
+    Size                   = UDim2.new(0, 36, 0, TH),
+    Position               = UDim2.new(0, WW-36, 0, 0),
+    ZIndex                 = 8,
+    AutoButtonColor        = false
 }, TBar)
 
 ClsB.MouseEnter:Connect(function() tween(ClsB, 0.1, {TextColor3 = C.RED}) end)
@@ -214,11 +211,11 @@ MinB.MouseLeave:Connect(function() tween(MinB, 0.1, {TextColor3 = C.GRAY}) end)
 --   BODY
 -- ══════════════════════════════════════════
 local Body = mk("Frame", {
-    Size               = UDim2.new(1, -40, 1, -TH-60),
-    Position           = UDim2.new(0, 20, 0, TH+20),
+    Size                   = UDim2.new(1, -40, 1, -TH-60),
+    Position               = UDim2.new(0, 20, 0, TH+20),
     BackgroundTransparency = 1,
-    BorderSizePixel    = 0,
-    ZIndex             = 4,
+    BorderSizePixel        = 0,
+    ZIndex                 = 4,
 }, Win)
 
 -- ══════════════════════════════════════════
@@ -226,48 +223,48 @@ local Body = mk("Frame", {
 -- ══════════════════════════════════════════
 local function CreateInput(parent, labelText, yPos, isPassword)
     local container = mk("Frame", {
-        Size               = UDim2.new(1, 0, 0, 56),
-        Position           = UDim2.new(0, 0, 0, yPos),
+        Size                   = UDim2.new(1, 0, 0, 56),
+        Position               = UDim2.new(0, 0, 0, yPos),
         BackgroundTransparency = 1,
-        BorderSizePixel    = 0,
-        ZIndex             = 5
+        BorderSizePixel        = 0,
+        ZIndex                 = 5
     }, parent)
 
     mk("TextLabel", {
-        Text               = labelText,
-        Font               = Enum.Font.GothamSemibold,
-        TextSize           = 10,
-        TextColor3         = C.WHITE,
+        Text                   = labelText,
+        Font                   = Enum.Font.GothamSemibold,
+        TextSize               = 10,
+        TextColor3             = C.WHITE,
         BackgroundTransparency = 1,
-        Size               = UDim2.new(1, 0, 0, 16),
-        TextXAlignment     = Enum.TextXAlignment.Left,
-        ZIndex             = 6
+        Size                   = UDim2.new(1, 0, 0, 16),
+        TextXAlignment         = Enum.TextXAlignment.Left,
+        ZIndex                 = 6
     }, container)
 
     local inputBg = mk("Frame", {
-        Size               = UDim2.new(1, 0, 0, 34),
-        Position           = UDim2.new(0, 0, 0, 20),
-        BackgroundColor3   = C.INPUT,
+        Size                   = UDim2.new(1, 0, 0, 34),
+        Position               = UDim2.new(0, 0, 0, 20),
+        BackgroundColor3       = C.INPUT,
         BackgroundTransparency = 0.2,
-        BorderSizePixel    = 0,
-        ZIndex             = 6
+        BorderSizePixel        = 0,
+        ZIndex                 = 6
     }, container)
     rnd(6, inputBg)
     mk("UIStroke", {Color = C.LINE, Thickness = 1, Transparency = 0.6}, inputBg)
 
     local input = mk("TextBox", {
-        Text               = "",
-        Font               = Enum.Font.Gotham,
-        TextSize           = 11,
-        TextColor3         = C.WHITE,
-        PlaceholderText    = labelText,
-        PlaceholderColor3  = C.MUTED,
+        Text                   = "",
+        Font                   = Enum.Font.Gotham,
+        TextSize               = 11,
+        TextColor3             = C.WHITE,
+        PlaceholderText        = labelText,
+        PlaceholderColor3      = C.MUTED,
         BackgroundTransparency = 1,
-        Size               = UDim2.new(1, -16, 1, 0),
-        Position           = UDim2.new(0, 8, 0, 0),
-        TextXAlignment     = Enum.TextXAlignment.Left,
-        ClearTextOnFocus   = false,
-        ZIndex             = 7
+        Size                   = UDim2.new(1, -16, 1, 0),
+        Position               = UDim2.new(0, 8, 0, 0),
+        TextXAlignment         = Enum.TextXAlignment.Left,
+        ClearTextOnFocus       = false,
+        ZIndex                 = 7
     }, inputBg)
 
     local realText = ""
@@ -300,27 +297,79 @@ local function CreateInput(parent, labelText, yPos, isPassword)
         return isPassword and realText or input.Text
     end
 
-    return input, container, getRealText
+    -- Función para rellenar desde fuera (auto-fill)
+    local function fill(text)
+        if isPassword then
+            realText   = text
+            input.Text = string.rep("•", #text)
+        else
+            input.Text = text
+        end
+    end
+
+    return input, container, getRealText, inputBg, fill
 end
 
-local usernameInput, userContainer, getUsernameText = CreateInput(Body, "Username", 0,  false)
-local keyInput,      keyContainer,  getKeyText      = CreateInput(Body, "Key",      66, true)
+local usernameInput, userContainer, getUsernameText, userBg, fillUsername = CreateInput(Body, "Username", 0,  false)
+local keyInput,      keyContainer,  getKeyText,      keyBg,  fillKey      = CreateInput(Body, "Key",      66, true)
+
+-- ══════════════════════════════════════════
+--   INDICADOR "DATOS GUARDADOS"
+-- ══════════════════════════════════════════
+-- Pequeño badge que aparece si se cargaron datos guardados
+local savedBadge = mk("Frame", {
+    Size                   = UDim2.new(0, 110, 0, 20),
+    Position               = UDim2.new(0, 0, 0, 130),
+    BackgroundColor3       = Color3.fromRGB(20, 20, 20),
+    BackgroundTransparency = 0.3,
+    BorderSizePixel        = 0,
+    ZIndex                 = 6,
+    Visible                = false,
+}, Body)
+rnd(5, savedBadge)
+mk("UIStroke", {Color = C.SAVED, Thickness = 1, Transparency = 0.5}, savedBadge)
+
+mk("TextLabel", {
+    Text                   = "● Datos guardados",
+    Font                   = Enum.Font.GothamSemibold,
+    TextSize               = 9,
+    TextColor3             = C.SAVED,
+    BackgroundTransparency = 1,
+    Size                   = UDim2.new(1, -8, 1, 0),
+    Position               = UDim2.new(0, 8, 0, 0),
+    TextXAlignment         = Enum.TextXAlignment.Left,
+    ZIndex                 = 7
+}, savedBadge)
+
+-- Botón pequeño para borrar datos guardados (×)
+local clearBtn = mk("TextButton", {
+    Text                   = "×",
+    Font                   = Enum.Font.GothamBold,
+    TextSize               = 12,
+    TextColor3             = C.GRAY,
+    BackgroundTransparency = 1,
+    BorderSizePixel        = 0,
+    Size                   = UDim2.new(0, 20, 1, 0),
+    Position               = UDim2.new(1, -20, 0, 0),
+    ZIndex                 = 8,
+    AutoButtonColor        = false,
+}, savedBadge)
 
 -- ══════════════════════════════════════════
 --   BOTÓN VERIFY
 -- ══════════════════════════════════════════
 local verifyBtn = mk("TextButton", {
-    Text               = "Verify",
-    Font               = Enum.Font.GothamBold,
-    TextSize           = 11,
-    TextColor3         = C.WHITE,
-    BackgroundColor3   = C.RED,
+    Text                   = "Verify",
+    Font                   = Enum.Font.GothamBold,
+    TextSize               = 11,
+    TextColor3             = C.WHITE,
+    BackgroundColor3       = C.RED,
     BackgroundTransparency = 0.1,
-    BorderSizePixel    = 0,
-    ZIndex             = 6,
-    Size               = UDim2.new(0.5, -5, 0, 34),
-    Position           = UDim2.new(0.25, 0, 0, 145),
-    AutoButtonColor    = false
+    BorderSizePixel        = 0,
+    ZIndex                 = 6,
+    Size                   = UDim2.new(0.5, -5, 0, 34),
+    Position               = UDim2.new(0.25, 0, 0, 162),
+    AutoButtonColor        = false
 }, Body)
 rnd(6, verifyBtn)
 mk("UIStroke", {Color = Color3.fromRGB(255,50,50), Thickness = 1, Transparency = 0.4}, verifyBtn)
@@ -329,22 +378,22 @@ mk("UIStroke", {Color = Color3.fromRGB(255,50,50), Thickness = 1, Transparency =
 --   STATUS CIRCLES (titlebar)
 -- ══════════════════════════════════════════
 local statusContainer = mk("Frame", {
-    Size               = UDim2.new(0, 46, 0, 10),
-    Position           = UDim2.new(0, 149, 0.5, -5),
+    Size                   = UDim2.new(0, 46, 0, 10),
+    Position               = UDim2.new(0, 149, 0.5, -5),
     BackgroundTransparency = 1,
-    BorderSizePixel    = 0,
-    ZIndex             = 8
+    BorderSizePixel        = 0,
+    ZIndex                 = 8
 }, TBar)
 
 local circles = {}
 for i = 1, 3 do
     local circle = mk("Frame", {
-        Size             = UDim2.new(0, 10, 0, 10),
-        Position         = UDim2.new(0, (i-1)*18, 0, 0),
-        BackgroundColor3 = C.WHITE,
+        Size                   = UDim2.new(0, 10, 0, 10),
+        Position               = UDim2.new(0, (i-1)*18, 0, 0),
+        BackgroundColor3       = C.WHITE,
         BackgroundTransparency = 0.3,
-        BorderSizePixel  = 0,
-        ZIndex           = 9
+        BorderSizePixel        = 0,
+        ZIndex                 = 9
     }, statusContainer)
     rnd(5, circle)
     circles[i] = circle
@@ -366,13 +415,56 @@ local function animateCircles(color)
 end
 
 -- ══════════════════════════════════════════
+--   AUTO-FILL CON CREDENCIALES GUARDADAS
+-- ══════════════════════════════════════════
+local hasSavedData = false
+
+local function tryLoadSaved()
+    local savedUser, savedKey = Config.loadCredentials()
+    if savedUser and savedKey and savedUser ~= "" and savedKey ~= "" then
+        fillUsername(savedUser)
+        fillKey(savedKey)
+        hasSavedData    = true
+        savedBadge.Visible = true
+
+        -- Resaltar los inputs en azul para indicar que están auto-rellenados
+        local userStroke = userBg:FindFirstChildOfClass("UIStroke")
+        local keyStroke  = keyBg:FindFirstChildOfClass("UIStroke")
+        if userStroke then tween(userStroke, 0.4, {Color = C.SAVED, Transparency = 0.3}) end
+        if keyStroke  then tween(keyStroke,  0.4, {Color = C.SAVED, Transparency = 0.3}) end
+
+        -- Volver al color normal tras 2s
+        task.delay(2, function()
+            if userStroke then tween(userStroke, 0.4, {Color = C.LINE, Transparency = 0.6}) end
+            if keyStroke  then tween(keyStroke,  0.4, {Color = C.LINE, Transparency = 0.6}) end
+        end)
+    end
+end
+
+-- Botón para limpiar datos guardados
+clearBtn.MouseButton1Click:Connect(function()
+    Config.clearCredentials()
+    hasSavedData = false
+
+    -- Limpiar campos
+    usernameInput.Text = ""
+    keyInput.Text      = ""
+
+    -- Ocultar badge
+    tween(savedBadge, 0.2, {BackgroundTransparency = 1})
+    task.delay(0.2, function() savedBadge.Visible = false end)
+end)
+
+clearBtn.MouseEnter:Connect(function() tween(clearBtn, 0.1, {TextColor3 = C.RED}) end)
+clearBtn.MouseLeave:Connect(function() tween(clearBtn, 0.1, {TextColor3 = C.GRAY}) end)
+
+-- ══════════════════════════════════════════
 --   LÓGICA DEL BOTÓN VERIFY
 -- ══════════════════════════════════════════
 verifyBtn.MouseButton1Click:Connect(function()
     local username = getUsernameText()
     local key      = getKeyText()
 
-    -- Animación de click
     tween(verifyBtn, 0.08, {Size = UDim2.new(0.5, -9, 0, 30)})
     task.delay(0.08, function()
         tween(verifyBtn, 0.12, {Size = UDim2.new(0.5, -5, 0, 34)})
@@ -389,11 +481,18 @@ verifyBtn.MouseButton1Click:Connect(function()
             animateCircles(C.RED)
         elseif success then
             animateCircles(C.GREEN)
+            -- Las credenciales ya se guardan dentro de config.verify()
             task.delay(2, function()
                 SG:Destroy()
-                Config.loadMain()   -- << carga main.lua si la key es válida
+                Config.loadMain()
             end)
         else
+            -- Key inválida: borrar datos guardados para no rellenar basura la próxima vez
+            if hasSavedData then
+                Config.clearCredentials()
+                hasSavedData       = false
+                savedBadge.Visible = false
+            end
             animateCircles(C.YELLOW)
         end
     end)
@@ -408,13 +507,13 @@ do
     local wStart   = Vector2.new()
 
     local DragHit = mk("TextButton", {
-        Text               = "",
+        Text                   = "",
         BackgroundTransparency = 1,
-        BorderSizePixel    = 0,
-        Size               = UDim2.new(1, -72, 1, 0),
-        Position           = UDim2.new(0, 0, 0, 0),
-        ZIndex             = 50,
-        AutoButtonColor    = false,
+        BorderSizePixel        = 0,
+        Size                   = UDim2.new(1, -72, 1, 0),
+        Position               = UDim2.new(0, 0, 0, 0),
+        ZIndex                 = 50,
+        AutoButtonColor        = false,
     }, TBar)
 
     DragHit.MouseButton1Down:Connect(function()
@@ -484,6 +583,14 @@ local function animateBodyElements(show)
     animInputBg(userContainer)
     animInputBg(keyContainer)
 
+    -- Badge de guardado
+    if hasSavedData and savedBadge.Visible then
+        tween(savedBadge, 0.2, {BackgroundTransparency = show and 0.3 or 1})
+        local badgeLabel = savedBadge:FindFirstChildOfClass("TextLabel")
+        if badgeLabel then tween(badgeLabel, 0.2, {TextTransparency = targetT}) end
+        tween(clearBtn, 0.2, {TextTransparency = targetT})
+    end
+
     tween(verifyBtn, 0.2, {
         BackgroundTransparency = show and 0.1 or 1,
         TextTransparency       = targetT,
@@ -506,19 +613,19 @@ local animating = false
 
 MinB.MouseButton1Click:Connect(function()
     if animating then return end
-    animating  = true
-    minimized  = not minimized
+    animating = true
+    minimized = not minimized
 
     if minimized then
         animateBodyElements(false)
-        tween(Body, 0.3, {Size = UDim2.new(1, -40, 0, 0)},          Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-        tween(Win,  0.3, {Size = UDim2.new(0, WW, 0, TH), BackgroundTransparency = 0.15}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+        tween(Body,      0.3,  {Size = UDim2.new(1, -40, 0, 0)},                                        Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+        tween(Win,       0.3,  {Size = UDim2.new(0, WW, 0, TH), BackgroundTransparency = 0.15},         Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
         tween(WinStroke, 0.25, {Transparency = 0.5})
         tween(title1,    0.2,  {TextTransparency = 0.5})
         task.delay(0.35, function() animating = false end)
     else
-        tween(Win,  0.35, {Size = UDim2.new(0, WW, 0, WH), BackgroundTransparency = 0.15}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-        tween(Body, 0.35, {Size = UDim2.new(1, -40, 1, -TH-60)},    Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+        tween(Win,       0.35, {Size = UDim2.new(0, WW, 0, WH), BackgroundTransparency = 0.15},         Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+        tween(Body,      0.35, {Size = UDim2.new(1, -40, 1, -TH-60)},                                   Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
         tween(WinStroke, 0.3,  {Transparency = 0.4})
         tween(title1,    0.25, {TextTransparency = 0})
         task.delay(0.15, function() animateBodyElements(true) end)
@@ -546,8 +653,8 @@ local function doClose()
     end
 
     task.delay(0.4, function()
-        tween(Win,      0.35, {Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1}, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
-        tween(WinStroke, 0.3, {Transparency = 1})
+        tween(Win,       0.35, {Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1}, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+        tween(WinStroke, 0.3,  {Transparency = 1})
     end)
     task.delay(0.8, function() SG:Destroy() end)
 end
@@ -555,7 +662,7 @@ end
 ClsB.MouseButton1Click:Connect(doClose)
 
 -- ══════════════════════════════════════════
---   HOTKEYS  (RightShift = ocultar | End = cerrar)
+--   HOTKEYS
 -- ══════════════════════════════════════════
 local hidden = false
 UIS.InputBegan:Connect(function(i, gp)
@@ -564,7 +671,7 @@ UIS.InputBegan:Connect(function(i, gp)
     if i.KeyCode == Enum.KeyCode.RightShift then
         hidden = not hidden
         if hidden then
-            tween(Win,      0.2, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+            tween(Win,       0.2, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
             tween(WinStroke, 0.2, {Transparency = 1})
             animateBodyElements(false)
             for _, circle in ipairs(circles) do
@@ -572,10 +679,10 @@ UIS.InputBegan:Connect(function(i, gp)
             end
             task.delay(0.2, function() Win.Visible = false end)
         else
-            Win.Visible              = true
+            Win.Visible                = true
             Win.BackgroundTransparency = 1
-            WinStroke.Transparency   = 1
-            tween(Win,      0.25, {BackgroundTransparency = 0.15}, Enum.EasingStyle.Sine)
+            WinStroke.Transparency     = 1
+            tween(Win,       0.25, {BackgroundTransparency = 0.15}, Enum.EasingStyle.Sine)
             tween(WinStroke, 0.25, {Transparency = 0.4})
             for _, circle in ipairs(circles) do
                 tween(circle, 0.25, {BackgroundTransparency = 0.3})
@@ -592,23 +699,23 @@ end)
 -- ══════════════════════════════════════════
 --   ANIMACIÓN DE APERTURA
 -- ══════════════════════════════════════════
-Win.Size                 = UDim2.new(0, WW/3, 0, TH)
+Win.Size                   = UDim2.new(0, WW/3, 0, TH)
 Win.BackgroundTransparency = 1
-WinStroke.Transparency   = 1
-Body.Size                = UDim2.new(1, -40, 0, 0)
-Body.Position            = UDim2.new(0, 20, 0, TH+20)
+WinStroke.Transparency     = 1
+Body.Size                  = UDim2.new(1, -40, 0, 0)
+Body.Position              = UDim2.new(0, 20, 0, TH+20)
 rdot.BackgroundTransparency  = 1
-title1.TextTransparency  = 1
-title2.TextTransparency  = 1
-MinB.TextTransparency    = 1
-ClsB.TextTransparency    = 1
+title1.TextTransparency    = 1
+title2.TextTransparency    = 1
+MinB.TextTransparency      = 1
+ClsB.TextTransparency      = 1
 
 for _, circle in ipairs(circles) do
     circle.BackgroundTransparency = 1
 end
 animateBodyElements(false)
 
-tween(Win,      0.4,  {Size = UDim2.new(0, WW, 0, TH), BackgroundTransparency = 0.15}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+tween(Win,       0.4,  {Size = UDim2.new(0, WW, 0, TH), BackgroundTransparency = 0.15}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 tween(WinStroke, 0.35, {Transparency = 0.4})
 
 task.delay(0.1, function()
@@ -631,5 +738,9 @@ end)
 task.delay(0.25, function()
     tween(Win,  0.45, {Size = UDim2.new(0, WW, 0, WH), BackgroundTransparency = 0.15}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
     tween(Body, 0.45, {Size = UDim2.new(1, -40, 1, -TH-60)},                           Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-    task.delay(0.3, function() animateBodyElements(true) end)
+    task.delay(0.3, function()
+        animateBodyElements(true)
+        -- Intentar cargar credenciales guardadas una vez que el panel es visible
+        task.delay(0.2, tryLoadSaved)
+    end)
 end)
