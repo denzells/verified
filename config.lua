@@ -1,33 +1,21 @@
 -- CONFIGURACIÓN DE KEYAUTH
 local KeyAuthConfig = {
-    Name = "serios.gg",           -- Cambia esto por el nombre de tu aplicación
-    OwnerID = "UPGTkUDkee",       -- Cambia esto por tu Owner ID
-    Version = "1.0"                -- Cambia esto por tu versión
+    Name = "serios.gg",
+    OwnerID = "UPGTkUDkee",
+    Version = "1.0"
 }
 
--- URL de la API de KeyAuth
 local KeyAuthURL = "https://keyauth.win/api/1.2/"
 
--- Función de verificación (sin prints)
-local function verifyWithKeyAuth(username, key, callback)
+-- Función de verificación (SIN loadstring)
+local function verifyWithKeyAuth(username, key, callback, httpRequest, HttpService)
     if username == "" or key == "" then
         callback(false, "empty")
         return
     end
     
-    local httpRequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
-    if not httpRequest then
-        callback(false, "no_http")
-        return
-    end
-    
-    -- Inicializar sesión
-    local initData = string.format(
-        "type=init&name=%s&ownerid=%s&version=%s",
-        KeyAuthConfig.Name,
-        KeyAuthConfig.OwnerID,
-        KeyAuthConfig.Version
-    )
+    -- Inicializar
+    local initData = "type=init&name=" .. KeyAuthConfig.Name .. "&ownerid=" .. KeyAuthConfig.OwnerID .. "&version=" .. KeyAuthConfig.Version
     
     local initSuccess, initResponse = pcall(function()
         return httpRequest({
@@ -45,7 +33,7 @@ local function verifyWithKeyAuth(username, key, callback)
     
     local initData
     local parseSuccess = pcall(function()
-        initData = game:GetService("HttpService"):JSONDecode(initResponse.Body)
+        initData = HttpService:JSONDecode(initResponse.Body)
     end)
     
     if not parseSuccess or not initData.success or not initData.sessionid then
@@ -54,14 +42,7 @@ local function verifyWithKeyAuth(username, key, callback)
     end
     
     -- Login
-    local loginData = string.format(
-        "type=login&username=%s&pass=%s&sessionid=%s&name=%s&ownerid=%s",
-        username,
-        key,
-        initData.sessionid,
-        KeyAuthConfig.Name,
-        KeyAuthConfig.OwnerID
-    )
+    local loginData = "type=login&username=" .. username .. "&pass=" .. key .. "&sessionid=" .. initData.sessionid .. "&name=" .. KeyAuthConfig.Name .. "&ownerid=" .. KeyAuthConfig.OwnerID
     
     local loginSuccess, loginResponse = pcall(function()
         return httpRequest({
@@ -79,7 +60,7 @@ local function verifyWithKeyAuth(username, key, callback)
     
     local loginData
     parseSuccess = pcall(function()
-        loginData = game:GetService("HttpService"):JSONDecode(loginResponse.Body)
+        loginData = HttpService:JSONDecode(loginResponse.Body)
     end)
     
     if not parseSuccess then
@@ -87,11 +68,7 @@ local function verifyWithKeyAuth(username, key, callback)
         return
     end
     
-    if loginData.success then
-        callback(true, loginData.message or "Verified")
-    else
-        callback(false, loginData.message or "invalid")
-    end
+    callback(loginData.success, loginData.message or (loginData.success and "Verified" or "invalid"))
 end
 
 return {
