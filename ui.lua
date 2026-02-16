@@ -33,7 +33,7 @@ local LocalPlayer  = Players.LocalPlayer
 -- ══════════════════════════════════════════
 --   ICON IDs
 -- ══════════════════════════════════════════
-local ICON_USERNAME = "rbxassetid://136128745074843"
+local ICON_USERNAME = "rbxassetid://75066739039083"
 local ICON_KEY      = "rbxassetid://126448589402910"
 
 -- ══════════════════════════════════════════
