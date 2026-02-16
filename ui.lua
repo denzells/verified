@@ -459,8 +459,9 @@ end
 --    tryLoadSaved is always called via task.delay
 --    so it runs after the full script is loaded)
 -- ══════════════════════════════════════════
-local hasSavedData = false
-local tryLoadSaved  -- forward declaration
+local hasSavedData        = false
+local tryLoadSaved            -- forward declaration
+local animateBodyElements     -- forward declaration
 
 -- Clear saved credentials button
 clearBtn.MouseButton1Click:Connect(function()
@@ -585,7 +586,7 @@ end
 -- ══════════════════════════════════════════
 --   BODY ANIMATION (show / hide)
 -- ══════════════════════════════════════════
-local function animateBodyElements(show)
+animateBodyElements = function(show)
     local targetT = show and 0 or 1
 
     local function animLabels(container)
