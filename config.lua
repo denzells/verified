@@ -1,5 +1,5 @@
--- CONFIGURACIÓN KEYAUTH + LOADER + GUARDADO DE CREDENCIALES
--- Archivo: config.lua
+-- KEYAUTH CONFIG + LOADER + CREDENTIAL SAVING
+-- File: config.lua
 
 local HttpService = game:GetService("HttpService")
 
@@ -19,7 +19,7 @@ local KeyAuthURL = "https://keyauth.win/api/1.2/"
 local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/denzells/panel/main/main.lua"
 
 -- ══════════════════════════════════════════
---   HTTP REQUEST (compatibilidad multi-executor)
+--   HTTP REQUEST (multi-executor support)
 -- ══════════════════════════════════════════
 local httpRequest = (syn and syn.request)
     or (http and http.request)
@@ -28,37 +28,35 @@ local httpRequest = (syn and syn.request)
     or request
 
 -- ══════════════════════════════════════════
---   SISTEMA DE GUARDADO DE CREDENCIALES
+--   CREDENTIAL SAVING SYSTEM
 -- ══════════════════════════════════════════
 local SAVE_FILE = "serios_saved.json"
 
--- Detectar si el executor soporta writefile/readfile
-local canSave = (typeof(writefile) == "function" and typeof(readfile) == "function" and typeof(isfile) == "function")
+local canSave = (
+    typeof(writefile) == "function" and
+    typeof(readfile)  == "function" and
+    typeof(isfile)    == "function"
+)
 
 local function saveCredentials(username, key)
     if not canSave then return end
     local ok = pcall(function()
-        local data = HttpService:JSONEncode({
+        writefile(SAVE_FILE, HttpService:JSONEncode({
             username = username,
             key      = key
-        })
-        writefile(SAVE_FILE, data)
+        }))
     end)
     if not ok then
-        warn("[serios.gg] No se pudieron guardar las credenciales.")
+        warn("[serios.gg] Failed to save credentials.")
     end
 end
 
 local function loadCredentials()
-    if not canSave then
-        return nil, nil
-    end
+    if not canSave then return nil, nil end
 
     local ok, result = pcall(function()
         if not isfile(SAVE_FILE) then return nil end
-        local raw  = readfile(SAVE_FILE)
-        local data = HttpService:JSONDecode(raw)
-        return data
+        return HttpService:JSONDecode(readfile(SAVE_FILE))
     end)
 
     if ok and result and result.username and result.key then
@@ -78,7 +76,7 @@ local function clearCredentials()
 end
 
 -- ══════════════════════════════════════════
---   FUNCIÓN DE VERIFICACIÓN
+--   VERIFICATION FUNCTION
 -- ══════════════════════════════════════════
 local function verifyWithKeyAuth(username, key, callback)
     if username == "" or key == "" then
@@ -86,7 +84,7 @@ local function verifyWithKeyAuth(username, key, callback)
         return
     end
 
-    -- Paso 1: Inicializar sesión
+    -- Step 1: Initialize session
     local initBody = "type=init"
         .. "&name="    .. KeyAuthConfig.Name
         .. "&ownerid=" .. KeyAuthConfig.OwnerID
@@ -116,7 +114,7 @@ local function verifyWithKeyAuth(username, key, callback)
         return
     end
 
-    -- Paso 2: Login con username + key
+    -- Step 2: Login with username + key
     local loginBody = "type=login"
         .. "&username=" .. username
         .. "&pass="     .. key
@@ -148,7 +146,7 @@ local function verifyWithKeyAuth(username, key, callback)
         return
     end
 
-    -- Si el login fue exitoso, guardar credenciales
+    -- Save credentials on successful login
     if loginData.success then
         saveCredentials(username, key)
     end
@@ -157,14 +155,14 @@ local function verifyWithKeyAuth(username, key, callback)
 end
 
 -- ══════════════════════════════════════════
---   FUNCIÓN DE CARGA
+--   MAIN SCRIPT LOADER
 -- ══════════════════════════════════════════
 local function loadMainScript()
     local ok, err = pcall(function()
         loadstring(game:HttpGet(MAIN_SCRIPT_URL))()
     end)
     if not ok then
-        warn("[serios.gg] Error al cargar main.lua: " .. tostring(err))
+        warn("[serios.gg] Failed to load main.lua: " .. tostring(err))
     end
 end
 
