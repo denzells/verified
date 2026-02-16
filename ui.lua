@@ -464,21 +464,12 @@ local function tryLoadSaved()
         fillUsername(savedUser)
         fillKey(savedKey)
         hasSavedData = true
-        -- animateBodyElements(true) was already called before this runs,
-        -- so just re-call it to include the badge now that hasSavedData is set
         animateBodyElements(true)
 
-        -- Blue highlight on inputs to signal auto-fill
-        local uStroke = userBg:FindFirstChildOfClass("UIStroke")
-        local kStroke = keyBg:FindFirstChildOfClass("UIStroke")
-        if uStroke then tween(uStroke, 0.4, {Color = C.SAVED, Transparency = 0.3}) end
-        if kStroke then tween(kStroke, 0.4, {Color = C.SAVED, Transparency = 0.3}) end
+        -- Tint icons blue briefly to signal auto-fill (no stroke changes)
         tween(userIcon, 0.4, {ImageColor3 = C.SAVED})
         tween(keyIcon,  0.4, {ImageColor3 = C.SAVED})
-
         task.delay(2, function()
-            if uStroke then tween(uStroke, 0.4, {Color = C.LINE, Transparency = 0.6}) end
-            if kStroke then tween(kStroke, 0.4, {Color = C.LINE, Transparency = 0.6}) end
             tween(userIcon, 0.4, {ImageColor3 = C.MUTED})
             tween(keyIcon,  0.4, {ImageColor3 = C.MUTED})
         end)
@@ -522,9 +513,26 @@ verifyBtn.MouseButton1Click:Connect(function()
             animateCircles(C.RED)
         elseif success then
             animateCircles(C.GREEN)
-            task.delay(2, function()
-                SG:Destroy()
-                Config.loadMain()
+
+            -- Simple fade out after a short pause
+            task.delay(0.8, function()
+                local fadeT = 0.5
+                tween(Win,       fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+                tween(WinStroke, fadeT, {Transparency = 1},           Enum.EasingStyle.Sine)
+                tween(rdot,      fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+                tween(title1,    fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+                tween(title2,    fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+                tween(MinB,      fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+                tween(ClsB,      fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+                for _, circle in ipairs(circles) do
+                    tween(circle, fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+                end
+                animateBodyElements(false)
+
+                task.delay(fadeT + 0.05, function()
+                    SG:Destroy()
+                    Config.loadMain()
+                end)
             end)
         else
             -- Clear saved data if key was invalid
@@ -679,21 +687,20 @@ local function doClose()
     animating  = true
     Win.Active = false
 
-    animateBodyElements(false)
-    tween(Body,   0.3, {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0,TH)}, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
-    tween(rdot,   0.2, {BackgroundTransparency = 1})
-    tween(title1, 0.2, {TextTransparency = 1})
-    tween(title2, 0.2, {TextTransparency = 1})
-    tween(MinB,   0.2, {TextTransparency = 1})
-    tween(ClsB,   0.2, {TextTransparency = 1})
+    local fadeT = 0.4
+    tween(Win,       fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+    tween(WinStroke, fadeT, {Transparency = 1},           Enum.EasingStyle.Sine)
+    tween(rdot,      fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+    tween(title1,    fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+    tween(title2,    fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+    tween(MinB,      fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+    tween(ClsB,      fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
     for _, circle in ipairs(circles) do
-        tween(circle, 0.2, {BackgroundTransparency = 1})
+        tween(circle, fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
     end
-    task.delay(0.4, function()
-        tween(Win,       0.35, {Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1}, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
-        tween(WinStroke, 0.3,  {Transparency = 1})
-    end)
-    task.delay(0.8, function() SG:Destroy() end)
+    animateBodyElements(false)
+
+    task.delay(fadeT + 0.05, function() SG:Destroy() end)
 end
 
 ClsB.MouseButton1Click:Connect(doClose)
@@ -708,21 +715,31 @@ UIS.InputBegan:Connect(function(i, gp)
     if i.KeyCode == Enum.KeyCode.RightShift then
         hidden = not hidden
         if hidden then
-            tween(Win,       0.2, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
-            tween(WinStroke, 0.2, {Transparency = 1})
-            animateBodyElements(false)
+            local fadeT = 0.3
+            tween(Win,       fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+            tween(WinStroke, fadeT, {Transparency = 1},           Enum.EasingStyle.Sine)
+            tween(rdot,      fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+            tween(title1,    fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+            tween(title2,    fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+            tween(MinB,      fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
+            tween(ClsB,      fadeT, {TextTransparency = 1},       Enum.EasingStyle.Sine)
             for _, circle in ipairs(circles) do
-                tween(circle, 0.2, {BackgroundTransparency = 1})
+                tween(circle, fadeT, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
             end
-            task.delay(0.2, function() Win.Visible = false end)
+            animateBodyElements(false)
+            task.delay(fadeT + 0.05, function() Win.Visible = false end)
         else
-            Win.Visible                = true
-            Win.BackgroundTransparency = 1
-            WinStroke.Transparency     = 1
-            tween(Win,       0.25, {BackgroundTransparency = 0.15}, Enum.EasingStyle.Sine)
-            tween(WinStroke, 0.25, {Transparency = 0.4})
+            Win.Visible = true
+            local fadeT = 0.35
+            tween(Win,       fadeT, {BackgroundTransparency = 0.15}, Enum.EasingStyle.Sine)
+            tween(WinStroke, fadeT, {Transparency = 0.4},            Enum.EasingStyle.Sine)
+            tween(rdot,      fadeT, {BackgroundTransparency = 0},    Enum.EasingStyle.Sine)
+            tween(title1,    fadeT, {TextTransparency = 0},          Enum.EasingStyle.Sine)
+            tween(title2,    fadeT, {TextTransparency = 0},          Enum.EasingStyle.Sine)
+            tween(MinB,      fadeT, {TextTransparency = 0},          Enum.EasingStyle.Sine)
+            tween(ClsB,      fadeT, {TextTransparency = 0},          Enum.EasingStyle.Sine)
             for _, circle in ipairs(circles) do
-                tween(circle, 0.25, {BackgroundTransparency = 0.3})
+                tween(circle, fadeT, {BackgroundTransparency = 0.3}, Enum.EasingStyle.Sine)
             end
             task.delay(0.15, function() animateBodyElements(true) end)
         end
@@ -734,49 +751,35 @@ UIS.InputBegan:Connect(function(i, gp)
 end)
 
 -- ══════════════════════════════════════════
---   OPEN ANIMATION
+--   OPEN ANIMATION  (simple fade in)
 -- ══════════════════════════════════════════
-Win.Size                   = UDim2.new(0, WW/3, 0, TH)
+SG.Parent = nil   -- detach while we set initial state
+
 Win.BackgroundTransparency = 1
 WinStroke.Transparency     = 1
-Body.Size                  = UDim2.new(1, -40, 0, 0)
-Body.Position              = UDim2.new(0, 20, 0, TH+20)
 rdot.BackgroundTransparency  = 1
 title1.TextTransparency    = 1
 title2.TextTransparency    = 1
 MinB.TextTransparency      = 1
 ClsB.TextTransparency      = 1
-
 for _, circle in ipairs(circles) do
     circle.BackgroundTransparency = 1
 end
 animateBodyElements(false)
 
-tween(Win,       0.4,  {Size = UDim2.new(0, WW, 0, TH), BackgroundTransparency = 0.15}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-tween(WinStroke, 0.35, {Transparency = 0.4})
+SG.Parent = PlayerGui   -- reattach, then fade everything in
 
-task.delay(0.1, function()
-    tween(rdot,   0.3, {BackgroundTransparency = 0},  Enum.EasingStyle.Sine)
-    task.delay(0.05, function() tween(title1, 0.3, {TextTransparency = 0}, Enum.EasingStyle.Sine) end)
-    task.delay(0.08, function() tween(title2, 0.3, {TextTransparency = 0}, Enum.EasingStyle.Sine) end)
-    task.delay(0.11, function()
-        for i, circle in ipairs(circles) do
-            task.delay((i-1)*0.05, function()
-                tween(circle, 0.25, {BackgroundTransparency = 0.3}, Enum.EasingStyle.Sine)
-            end)
-        end
-    end)
-    task.delay(0.2, function()
-        tween(MinB, 0.25, {TextTransparency = 0}, Enum.EasingStyle.Sine)
-        tween(ClsB, 0.25, {TextTransparency = 0}, Enum.EasingStyle.Sine)
-    end)
-end)
-
-task.delay(0.25, function()
-    tween(Win,  0.45, {Size = UDim2.new(0, WW, 0, WH), BackgroundTransparency = 0.15}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-    tween(Body, 0.45, {Size = UDim2.new(1, -40, 1, -TH-60)},                          Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-    task.delay(0.3, function()
-        animateBodyElements(true)
-        task.delay(0.2, tryLoadSaved)
-    end)
+tween(Win,       0.45, {BackgroundTransparency = 0.15}, Enum.EasingStyle.Sine)
+tween(WinStroke, 0.45, {Transparency = 0.4},            Enum.EasingStyle.Sine)
+tween(rdot,      0.45, {BackgroundTransparency = 0},    Enum.EasingStyle.Sine)
+tween(title1,    0.45, {TextTransparency = 0},          Enum.EasingStyle.Sine)
+tween(title2,    0.45, {TextTransparency = 0},          Enum.EasingStyle.Sine)
+tween(MinB,      0.45, {TextTransparency = 0},          Enum.EasingStyle.Sine)
+tween(ClsB,      0.45, {TextTransparency = 0},          Enum.EasingStyle.Sine)
+for _, circle in ipairs(circles) do
+    tween(circle, 0.45, {BackgroundTransparency = 0.3}, Enum.EasingStyle.Sine)
+end
+task.delay(0.2, function()
+    animateBodyElements(true)
+    task.delay(0.1, tryLoadSaved)
 end)
