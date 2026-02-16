@@ -5,7 +5,7 @@
 -- ══════════════════════════════════════════
 --   CARGAR CONFIG DESDE GITHUB
 -- ══════════════════════════════════════════
-local CONFIG_URL = "https://raw.githubusercontent.com/denzells/serios.gg/main/config.lua"
+local CONFIG_URL = "https://raw.githubusercontent.com/denzells/verified/main/config.lua"
 
 local Config
 local configOk, configErr = pcall(function()
