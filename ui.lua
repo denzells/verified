@@ -403,7 +403,7 @@ local verifyBtn = mk("TextButton", {
     Text                   = "Verify",
     Font                   = Enum.Font.GothamBold,
     TextSize               = 11,
-    TextColor3             = C.WHITE,
+    TextColor3             = Color3.fromRGB(12, 12, 12),
     BackgroundColor3       = C.RED,
     BackgroundTransparency = 0.1,
     BorderSizePixel        = 0,
@@ -413,7 +413,7 @@ local verifyBtn = mk("TextButton", {
     AutoButtonColor        = false
 }, Body)
 rnd(6, verifyBtn)
-mk("UIStroke", {Color = Color3.fromRGB(255,50,50), Thickness = 1, Transparency = 0.4}, verifyBtn)
+mk("UIStroke", {Color = Color3.fromRGB(235,235,235), Thickness = 1, Transparency = 0.4}, verifyBtn)
 
 -- ══════════════════════════════════════════
 --   STATUS CIRCLES (titlebar)
