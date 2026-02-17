@@ -37,13 +37,13 @@ local ICON_USERNAME = "rbxassetid://75066739039083"
 local ICON_KEY      = "rbxassetid://126448589402910"
 
 -- ══════════════════════════════════════════
---   COLORS
+--   COLORS - MODIFICADOS: rojo cambiado a blanco
 -- ══════════════════════════════════════════
 local C = {
     WIN   = Color3.fromRGB(12, 12, 12),
     TBAR  = Color3.fromRGB(8, 8, 8),
     LINE  = Color3.fromRGB(42, 42, 42),
-    RED   = Color3.fromRGB(205, 30, 30),
+    RED   = Color3.fromRGB(255, 255, 255),     -- Cambiado de rojo a blanco
     WHITE = Color3.fromRGB(235, 235, 235),
     GRAY  = Color3.fromRGB(110, 110, 110),
     MUTED = Color3.fromRGB(55, 55, 55),
@@ -144,11 +144,11 @@ mk("Frame", {
     Active                 = false,
 }, TBar)
 
--- Red dot
+-- Red dot (ahora blanco)
 local rdot = mk("Frame", {
     Size             = UDim2.new(0, 10, 0, 10),
     Position         = UDim2.new(0, 14, 0.5, -5),
-    BackgroundColor3 = C.RED,
+    BackgroundColor3 = C.RED,  -- Ahora es blanco
     BorderSizePixel  = 0,
     ZIndex           = 8
 }, TBar)
@@ -170,7 +170,7 @@ local title2 = mk("TextLabel", {
     Text                   = "|",
     Font                   = Enum.Font.GothamBold,
     TextSize               = 16,
-    TextColor3             = C.RED,
+    TextColor3             = C.RED,  -- Ahora es blanco
     BackgroundTransparency = 1,
     Size                   = UDim2.new(0, 14, 0, TH),
     Position               = UDim2.new(0, 133, 0, 0),
@@ -207,7 +207,7 @@ local ClsB = mk("TextButton", {
     AutoButtonColor        = false
 }, TBar)
 
-ClsB.MouseEnter:Connect(function() tween(ClsB, 0.1, {TextColor3 = C.RED}) end)
+ClsB.MouseEnter:Connect(function() tween(ClsB, 0.1, {TextColor3 = C.RED}) end)  -- Cambia a blanco al hacer hover
 ClsB.MouseLeave:Connect(function() tween(ClsB, 0.1, {TextColor3 = C.GRAY}) end)
 MinB.MouseEnter:Connect(function() tween(MinB, 0.1, {TextColor3 = C.WHITE}) end)
 MinB.MouseLeave:Connect(function() tween(MinB, 0.1, {TextColor3 = C.GRAY}) end)
@@ -318,7 +318,7 @@ local function CreateInput(parent, labelText, yPos, isPassword, iconId)
         tween(inputBg, 0.15, {BackgroundColor3 = Color3.fromRGB(22,22,22), BackgroundTransparency = 0.1})
         tween(icon, 0.15, {ImageColor3 = C.WHITE})
         local stroke = inputBg:FindFirstChildOfClass("UIStroke")
-        if stroke then tween(stroke, 0.15, {Color = C.RED, Transparency = 0.4}) end
+        if stroke then tween(stroke, 0.15, {Color = C.RED, Transparency = 0.4}) end  -- Cambia a blanco al hacer focus
     end)
 
     input.FocusLost:Connect(function()
@@ -393,18 +393,18 @@ local clearBtn = mk("TextButton", {
     AutoButtonColor        = false,
 }, savedBadge)
 
-clearBtn.MouseEnter:Connect(function() tween(clearBtn, 0.1, {TextColor3 = C.RED}) end)
+clearBtn.MouseEnter:Connect(function() tween(clearBtn, 0.1, {TextColor3 = C.RED}) end)  -- Cambia a blanco al hacer hover
 clearBtn.MouseLeave:Connect(function() tween(clearBtn, 0.1, {TextColor3 = C.GRAY}) end)
 
 -- ══════════════════════════════════════════
---   VERIFY BUTTON
+--   VERIFY BUTTON - MODIFICADO: texto en negro para contraste
 -- ══════════════════════════════════════════
 local verifyBtn = mk("TextButton", {
     Text                   = "Verify",
     Font                   = Enum.Font.GothamBold,
     TextSize               = 11,
-    TextColor3             = Color3.fromRGB(12, 12, 12),
-    BackgroundColor3       = C.RED,
+    TextColor3             = Color3.fromRGB(0, 0, 0),     -- Cambiado a NEGRO
+    BackgroundColor3       = C.RED,                       -- Ahora es blanco (fondo)
     BackgroundTransparency = 0.1,
     BorderSizePixel        = 0,
     ZIndex                 = 6,
@@ -413,7 +413,7 @@ local verifyBtn = mk("TextButton", {
     AutoButtonColor        = false
 }, Body)
 rnd(6, verifyBtn)
-mk("UIStroke", {Color = Color3.fromRGB(235,235,235), Thickness = 1, Transparency = 0.4}, verifyBtn)
+mk("UIStroke", {Color = Color3.fromRGB(200, 200, 200), Thickness = 1, Transparency = 0.4}, verifyBtn)  -- Stroke gris claro
 
 -- ══════════════════════════════════════════
 --   STATUS CIRCLES (titlebar)
@@ -494,7 +494,7 @@ verifyBtn.MouseButton1Click:Connect(function()
         verifyBtn.Text   = "Verify"
 
         if username == "" or key == "" then
-            animateCircles(C.RED)
+            animateCircles(C.RED)  -- Ahora blanco
         elseif success then
             animateCircles(C.GREEN)
 
