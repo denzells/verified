@@ -4,7 +4,7 @@
 -- ══════════════════════════════════════════
 --   LOAD CONFIG FROM GITHUB
 -- ══════════════════════════════════════════
-local CONFIG_URL = "https://raw.githubusercontent.com/denzells/verified/blob/config.lua"
+local CONFIG_URL = "https://raw.githubusercontent.com/denzells/verified/ui/config.lua"
 
 local Config
 local configOk, configErr = pcall(function()
