@@ -8,13 +8,18 @@ local KeyAuthConfig = {
     OwnerID = "UPGTkUDkee",
     Version = "1.0"
 }
-local KeyAuthURL = "https://keyauth.win/api/1.2/"
-local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/denzells/panel/main"
+local KeyAuthURL      = "https://keyauth.win/api/1.2/"
+local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/denzells/panel/main/main.lua"
 
 local httpRequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
 
 local SAVE_FILE = "serios_saved.json"
-local canSave = typeof(writefile) == "function" and typeof(readfile) == "function" and typeof(isfile) == "function"
+local canSave   = typeof(writefile) == "function" and typeof(readfile) == "function" and typeof(isfile) == "function"
+
+local function jsonDecode(str)
+    local ok, result = pcall(function() return HttpService:JSONDecode(str) end)
+    if ok then return result else return nil end
+end
 
 local function saveCredentials(username, key, expiry)
     if not canSave then return end
@@ -52,13 +57,12 @@ local function verifyWithKeyAuth(username, key, callback)
         return
     end
 
-    local initBody = "type=init&name=" .. KeyAuthConfig.Name .. "&ownerid=" .. KeyAuthConfig.OwnerID .. "&version=" .. KeyAuthConfig.Version
     local initOk, initRes = pcall(function()
         return httpRequest({
             Url     = KeyAuthURL,
             Method  = "POST",
             Headers = { ["Content-Type"] = "application/x-www-form-urlencoded" },
-            Body    = initBody
+            Body    = "type=init&name=" .. KeyAuthConfig.Name .. "&ownerid=" .. KeyAuthConfig.OwnerID .. "&version=" .. KeyAuthConfig.Version
         })
     end)
 
@@ -67,19 +71,17 @@ local function verifyWithKeyAuth(username, key, callback)
         return
     end
 
-    local initData = pcall(function() return HttpService:JSONDecode(initRes.Body) end) and HttpService:JSONDecode(initRes.Body)
-    if not initData or not initData.success or not initData.sessionid then
-        callback(false, "init_failed")
-        return
-    end
+    local initData = jsonDecode(initRes.Body)
+    if not initData then callback(false, "parse_error_init") return end
+    if not initData.success then callback(false, "init_failed: " .. tostring(initData.message or "unknown")) return end
+    if not initData.sessionid then callback(false, "no_sessionid") return end
 
-    local loginBody = "type=login&username=" .. username .. "&pass=" .. key .. "&sessionid=" .. initData.sessionid .. "&name=" .. KeyAuthConfig.Name .. "&ownerid=" .. KeyAuthConfig.OwnerID
     local loginOk, loginRes = pcall(function()
         return httpRequest({
             Url     = KeyAuthURL,
             Method  = "POST",
             Headers = { ["Content-Type"] = "application/x-www-form-urlencoded" },
-            Body    = loginBody
+            Body    = "type=login&username=" .. username .. "&pass=" .. key .. "&sessionid=" .. initData.sessionid .. "&name=" .. KeyAuthConfig.Name .. "&ownerid=" .. KeyAuthConfig.OwnerID
         })
     end)
 
@@ -88,11 +90,8 @@ local function verifyWithKeyAuth(username, key, callback)
         return
     end
 
-    local loginData = pcall(function() return HttpService:JSONDecode(loginRes.Body) end) and HttpService:JSONDecode(loginRes.Body)
-    if not loginData then
-        callback(false, "parse_error")
-        return
-    end
+    local loginData = jsonDecode(loginRes.Body)
+    if not loginData then callback(false, "parse_error_login") return end
 
     if loginData.success then
         local expiry = "N/A"
@@ -105,7 +104,6 @@ local function verifyWithKeyAuth(username, key, callback)
     callback(loginData.success, loginData.message or (loginData.success and "Verified" or "invalid"))
 end
 
--- CORREGIDO: loadstring capturado fuera de pcall
 local function loadMainScript()
     local ok, content = pcall(function()
         return game:HttpGet(MAIN_SCRIPT_URL)
