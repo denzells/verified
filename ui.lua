@@ -1,18 +1,39 @@
 -- VERIFICATION PANEL — UI
 -- File: ui.lua
 
+local _loadstring = loadstring  -- captura loadstring del executor ANTES de cualquier pcall
+
 -- ══════════════════════════════════════════
 --   LOAD CONFIG FROM GITHUB
 -- ══════════════════════════════════════════
 local CONFIG_URL = "https://raw.githubusercontent.com/denzells/verified/main/config.lua"
 
 local Config
-local configOk, configErr = pcall(function()
-    Config = loadstring(game:HttpGet(CONFIG_URL))()
+local content, httpErr
+local httpOk = pcall(function()
+    content = game:HttpGet(CONFIG_URL)
 end)
 
-if not configOk or not Config then
-    warn("[serios.gg] Failed to load config.lua: " .. tostring(configErr))
+if not httpOk or not content or content == "" then
+    warn("[serios.gg] Failed to download config.lua")
+    return
+end
+
+local fn, compErr = _loadstring(content)
+if not fn then
+    warn("[serios.gg] Failed to compile config.lua: " .. tostring(compErr))
+    return
+end
+
+local runOk, runResult = pcall(fn)
+if not runOk then
+    warn("[serios.gg] Failed to execute config.lua: " .. tostring(runResult))
+    return
+end
+Config = runResult
+
+if not Config then
+    warn("[serios.gg] config.lua did not return a value")
     return
 end
 
@@ -37,13 +58,13 @@ local ICON_USERNAME = "rbxassetid://75066739039083"
 local ICON_KEY      = "rbxassetid://126448589402910"
 
 -- ══════════════════════════════════════════
---   COLORS - MODIFICADOS: rojo cambiado a blanco
+--   COLORS
 -- ══════════════════════════════════════════
 local C = {
     WIN   = Color3.fromRGB(12, 12, 12),
     TBAR  = Color3.fromRGB(8, 8, 8),
     LINE  = Color3.fromRGB(42, 42, 42),
-    RED   = Color3.fromRGB(255, 255, 255),     -- Cambiado de rojo a blanco
+    RED   = Color3.fromRGB(255, 255, 255),
     WHITE = Color3.fromRGB(235, 235, 235),
     GRAY  = Color3.fromRGB(110, 110, 110),
     MUTED = Color3.fromRGB(55, 55, 55),
@@ -133,7 +154,6 @@ local TBar = mk("Frame", {
 }, Win)
 rnd(14, TBar)
 
--- Bottom filler so titlebar corners don't show at the bottom
 mk("Frame", {
     Size                   = UDim2.new(1, 0, 0, 14),
     Position               = UDim2.new(0, 0, 1, -14),
@@ -144,11 +164,10 @@ mk("Frame", {
     Active                 = false,
 }, TBar)
 
--- Red dot (ahora blanco)
 local rdot = mk("Frame", {
     Size             = UDim2.new(0, 10, 0, 10),
     Position         = UDim2.new(0, 14, 0.5, -5),
-    BackgroundColor3 = C.RED,  -- Ahora es blanco
+    BackgroundColor3 = C.RED,
     BorderSizePixel  = 0,
     ZIndex           = 8
 }, TBar)
@@ -170,7 +189,7 @@ local title2 = mk("TextLabel", {
     Text                   = "|",
     Font                   = Enum.Font.GothamBold,
     TextSize               = 16,
-    TextColor3             = C.RED,  -- Ahora es blanco
+    TextColor3             = C.RED,
     BackgroundTransparency = 1,
     Size                   = UDim2.new(0, 14, 0, TH),
     Position               = UDim2.new(0, 133, 0, 0),
@@ -207,7 +226,7 @@ local ClsB = mk("TextButton", {
     AutoButtonColor        = false
 }, TBar)
 
-ClsB.MouseEnter:Connect(function() tween(ClsB, 0.1, {TextColor3 = C.RED}) end)  -- Cambia a blanco al hacer hover
+ClsB.MouseEnter:Connect(function() tween(ClsB, 0.1, {TextColor3 = C.RED}) end)
 ClsB.MouseLeave:Connect(function() tween(ClsB, 0.1, {TextColor3 = C.GRAY}) end)
 MinB.MouseEnter:Connect(function() tween(MinB, 0.1, {TextColor3 = C.WHITE}) end)
 MinB.MouseLeave:Connect(function() tween(MinB, 0.1, {TextColor3 = C.GRAY}) end)
@@ -224,7 +243,7 @@ local Body = mk("Frame", {
 }, Win)
 
 -- ══════════════════════════════════════════
---   INPUT CREATOR  (con referencia al separador)
+--   INPUT CREATOR
 -- ══════════════════════════════════════════
 local function CreateInput(parent, labelText, yPos, isPassword, iconId)
     local container = mk("Frame", {
@@ -257,7 +276,6 @@ local function CreateInput(parent, labelText, yPos, isPassword, iconId)
     rnd(6, inputBg)
     mk("UIStroke", {Color = C.LINE, Thickness = 1, Transparency = 0.6}, inputBg)
 
-    -- Icon inside the input (left side)
     local iconSize = 18
     local iconPad  = 8
 
@@ -270,7 +288,6 @@ local function CreateInput(parent, labelText, yPos, isPassword, iconId)
         ZIndex                 = 8
     }, inputBg)
 
-    -- Separator line after icon (guardamos referencia para poder ocultarlo)
     local separator = mk("Frame", {
         Name                   = "InputSeparator",
         Size                   = UDim2.new(0, 1, 0, 16),
@@ -281,7 +298,6 @@ local function CreateInput(parent, labelText, yPos, isPassword, iconId)
         ZIndex                 = 8
     }, inputBg)
 
-    -- Text offset to make room for icon + separator
     local textOffsetLeft = iconPad + iconSize + 14
 
     local input = mk("TextBox", {
@@ -313,12 +329,11 @@ local function CreateInput(parent, labelText, yPos, isPassword, iconId)
         end)
     end
 
-    -- Focus / unfocus highlight
     input.Focused:Connect(function()
         tween(inputBg, 0.15, {BackgroundColor3 = Color3.fromRGB(22,22,22), BackgroundTransparency = 0.1})
         tween(icon, 0.15, {ImageColor3 = C.WHITE})
         local stroke = inputBg:FindFirstChildOfClass("UIStroke")
-        if stroke then tween(stroke, 0.15, {Color = C.RED, Transparency = 0.4}) end  -- Cambia a blanco al hacer focus
+        if stroke then tween(stroke, 0.15, {Color = C.RED, Transparency = 0.4}) end
     end)
 
     input.FocusLost:Connect(function()
@@ -341,7 +356,6 @@ local function CreateInput(parent, labelText, yPos, isPassword, iconId)
         end
     end
 
-    -- Retornamos el separator también para poder controlarlo desde animateBodyElements
     return input, container, getRealText, inputBg, fill, icon, separator
 end
 
@@ -393,18 +407,18 @@ local clearBtn = mk("TextButton", {
     AutoButtonColor        = false,
 }, savedBadge)
 
-clearBtn.MouseEnter:Connect(function() tween(clearBtn, 0.1, {TextColor3 = C.RED}) end)  -- Cambia a blanco al hacer hover
+clearBtn.MouseEnter:Connect(function() tween(clearBtn, 0.1, {TextColor3 = C.RED}) end)
 clearBtn.MouseLeave:Connect(function() tween(clearBtn, 0.1, {TextColor3 = C.GRAY}) end)
 
 -- ══════════════════════════════════════════
---   VERIFY BUTTON - MODIFICADO: texto en negro para contraste
+--   VERIFY BUTTON
 -- ══════════════════════════════════════════
 local verifyBtn = mk("TextButton", {
     Text                   = "Verify",
     Font                   = Enum.Font.GothamBold,
     TextSize               = 11,
-    TextColor3             = Color3.fromRGB(0, 0, 0),     -- Cambiado a NEGRO
-    BackgroundColor3       = C.RED,                       -- Ahora es blanco (fondo)
+    TextColor3             = Color3.fromRGB(0, 0, 0),
+    BackgroundColor3       = C.RED,
     BackgroundTransparency = 0.1,
     BorderSizePixel        = 0,
     ZIndex                 = 6,
@@ -413,7 +427,7 @@ local verifyBtn = mk("TextButton", {
     AutoButtonColor        = false
 }, Body)
 rnd(6, verifyBtn)
-mk("UIStroke", {Color = Color3.fromRGB(200, 200, 200), Thickness = 1, Transparency = 0.4}, verifyBtn)  -- Stroke gris claro
+mk("UIStroke", {Color = Color3.fromRGB(200, 200, 200), Thickness = 1, Transparency = 0.4}, verifyBtn)
 
 -- ══════════════════════════════════════════
 --   STATUS CIRCLES (titlebar)
@@ -462,7 +476,6 @@ local hasSavedData        = false
 local tryLoadSaved
 local animateBodyElements
 
--- Clear saved credentials button
 clearBtn.MouseButton1Click:Connect(function()
     Config.clearCredentials()
     hasSavedData       = false
@@ -494,18 +507,13 @@ verifyBtn.MouseButton1Click:Connect(function()
         verifyBtn.Text   = "Verify"
 
         if username == "" or key == "" then
-            animateCircles(C.RED)  -- Ahora blanco
+            animateCircles(C.RED)
         elseif success then
             animateCircles(C.GREEN)
 
             task.delay(0.8, function()
-                -- ══════════════════════════════════
-                -- ANIMACIÓN DE SALIDA MEJORADA
-                -- Fade + escala hacia abajo + ligero movimiento Y
-                -- ══════════════════════════════════
                 local fadeT = 0.45
 
-                -- Ventana: fade + scale down
                 tween(Win, fadeT, {
                     BackgroundTransparency = 1,
                     Size     = UDim2.new(0, WW * 0.92, 0, WH * 0.92),
@@ -592,7 +600,6 @@ end
 
 -- ══════════════════════════════════════════
 --   BODY ANIMATION (show / hide)
---   FIX: ahora también anima los separadores
 -- ══════════════════════════════════════════
 animateBodyElements = function(show)
     local targetT = show and 0 or 1
@@ -621,7 +628,6 @@ animateBodyElements = function(show)
                 local img = child:FindFirstChildOfClass("ImageLabel")
                 if img then tween(img, 0.2, {ImageTransparency = targetT}) end
 
-                -- FIX: Ocultar/mostrar el separador que está DENTRO del inputBg
                 local sep = child:FindFirstChild("InputSeparator")
                 if sep then
                     tween(sep, 0.2, {BackgroundTransparency = show and 0.3 or 1})
@@ -635,7 +641,6 @@ animateBodyElements = function(show)
     animInputBg(userContainer)
     animInputBg(keyContainer)
 
-    -- Badge
     do
         local badgeT = (show and hasSavedData) and 0 or 1
         tween(savedBadge,       0.2, {BackgroundTransparency = badgeT == 0 and 0.3 or 1})
@@ -704,7 +709,7 @@ MinB.MouseButton1Click:Connect(function()
 end)
 
 -- ══════════════════════════════════════════
---   CLOSE CON ANIMACIÓN MEJORADA
+--   CLOSE
 -- ══════════════════════════════════════════
 local function doClose()
     if animating then return end
@@ -712,7 +717,6 @@ local function doClose()
     Win.Active = false
 
     local fadeT = 0.4
-    -- Fade + scale down hacia el centro
     tween(Win, fadeT, {
         BackgroundTransparency = 1,
         Size     = UDim2.new(0, WW * 0.9, 0, WH * 0.9),
@@ -736,7 +740,7 @@ end
 ClsB.MouseButton1Click:Connect(doClose)
 
 -- ══════════════════════════════════════════
---   HOTKEYS  (RightShift = hide | End = close)
+--   HOTKEYS
 -- ══════════════════════════════════════════
 local hidden = false
 UIS.InputBegan:Connect(function(i, gp)
@@ -764,7 +768,6 @@ UIS.InputBegan:Connect(function(i, gp)
             task.delay(fadeT + 0.05, function() Win.Visible = false end)
         else
             Win.Visible = true
-            -- Restaurar size y posición antes de hacer fade in
             Win.Size     = UDim2.new(0, WW * 0.95, 0, WH * 0.95)
             Win.Position = UDim2.new(0.5, -(WW * 0.95)/2, 0.5, -(WH * 0.95)/2 + 8)
 
@@ -793,9 +796,7 @@ UIS.InputBegan:Connect(function(i, gp)
 end)
 
 -- ══════════════════════════════════════════
---   OPEN ANIMATION MEJORADA
---   Aparece desde ligeramente más pequeño y abajo
---   con spring elástico al tamaño final
+--   OPEN ANIMATION
 -- ══════════════════════════════════════════
 Win.Visible                = false
 Win.BackgroundTransparency = 1
@@ -815,7 +816,6 @@ animateBodyElements(false)
 task.defer(function()
     Win.Visible = true
 
-    -- Fase 1: aparece rápido con overshoot elástico
     local t1 = 0.55
     tween(Win, t1, {
         BackgroundTransparency = 0,
@@ -826,7 +826,6 @@ task.defer(function()
     tween(WinStroke, t1 * 0.8, {Transparency = 0},           Enum.EasingStyle.Sine)
     tween(rdot,      t1 * 0.8, {BackgroundTransparency = 0}, Enum.EasingStyle.Sine)
 
-    -- Fase 2: títulos y botones aparecen con stagger
     task.delay(0.1, function()
         tween(title1, 0.35, {TextTransparency = 0}, Enum.EasingStyle.Quart)
     end)
@@ -845,7 +844,6 @@ task.defer(function()
         end
     end)
 
-    -- Fase 3: settle al tamaño exacto
     task.delay(t1, function()
         tween(Win, 0.2, {
             Size     = UDim2.new(0, WW, 0, WH),
@@ -853,7 +851,6 @@ task.defer(function()
         }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
     end)
 
-    -- Fase 4: contenido del body con stagger
     task.delay(0.3, function()
         animateBodyElements(true)
         task.delay(0.1, tryLoadSaved)
