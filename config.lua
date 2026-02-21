@@ -11,7 +11,7 @@ local LocalPlayer  = Players.LocalPlayer
 -- ─── CONFIG ──────────────────────────────────────────────────────────────────
 local GITHUB_RAW_KEYS  = "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/keys.json"
 local GITHUB_API_KEYS  = "https://api.github.com/repos/YOUR_USER/YOUR_REPO/contents/keys.json"
-local GITHUB_TOKEN     = "ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"  -- fine-grained PAT (read+write keys.json)
+local GITHUB_TOKEN     = "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"  -- fine-grained PAT (read+write keys.json)
 local GITHUB_BRANCH    = "main"
 local MAIN_SCRIPT_URL  = "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/main.lua"
 local SAVE_FILE        = "serios_saved.json"
