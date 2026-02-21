@@ -9,7 +9,7 @@ local HttpService  = game:GetService("HttpService")
 -- ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 local GITHUB_RAW   = "https://raw.githubusercontent.com/denzells/verified/main/keys.json"
 local GITHUB_API   = "https://api.github.com/repos/denzells/verified/contents/keys.json"
-local GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"   -- Token con permisos repo (solo lectura es suficiente para verificar)
+local GITHUB_TOKEN = "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"   -- Token con permisos repo (solo lectura es suficiente para verificar)
 local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/denzells/panel/main/main.lua"
 -- ──────────────────────────────────────────────────────────────────────────────
 
