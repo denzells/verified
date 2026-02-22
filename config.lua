@@ -6,7 +6,7 @@ local Players     = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 -- ─── CONFIG ──────────────────────────────────────────────────────────────────
-local GITHUB_RAW_KEYS = "https://raw.githubusercontent.com/denzells/panel/main/keys.json"
+local GITHUB_API_KEYS = "https://api.github.com/repos/denzells/panel/contents/keys.json"
 local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/denzells/panel/main/main.lua"
 local SAVE_FILE       = "serios_saved.json"
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -68,15 +68,40 @@ local function clearCredentials()
     end)
 end
 
+-- Usa la API de GitHub en lugar de raw para evitar caché
 local function fetchKeysData()
     local ok, res = pcall(function()
         return httpRequest({
-            Url    = GITHUB_RAW_KEYS .. "?t=" .. tostring(os.time()),
-            Method = "GET"
+            Url     = GITHUB_API_KEYS,
+            Method  = "GET",
+            Headers = {
+                ["Accept"]     = "application/vnd.github.v3+json",
+                ["User-Agent"] = "serios-gg"
+            }
         })
     end)
     if not ok or not res or not res.Body then return nil end
-    return jDecode(res.Body)
+
+    local meta = jDecode(res.Body)
+    if not meta or not meta.content then return nil end
+
+    -- Decodificar base64 que devuelve la API
+    local b64 = meta.content:gsub("%s+", "")
+
+    -- Intentar con funciones del executor
+    local decoded = nil
+    pcall(function()
+        if typeof(base64_decode) == "function" then
+            decoded = base64_decode(b64)
+        elseif typeof(base64) == "table" and base64.decode then
+            decoded = base64.decode(b64)
+        elseif typeof(crypt) == "table" and crypt.base64decode then
+            decoded = crypt.base64decode(b64)
+        end
+    end)
+
+    if not decoded then return nil end
+    return jDecode(decoded)
 end
 
 local function verifyKey(username, key, callback)
@@ -99,6 +124,7 @@ local function verifyKey(username, key, callback)
         return
     end
 
+    -- Expiry check
     if entry.expires_at and entry.expires_at ~= "null" then
         local y, mo, d, h, mi, s = entry.expires_at:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
         if y then
@@ -113,6 +139,7 @@ local function verifyKey(username, key, callback)
         end
     end
 
+    -- Session lock check
     local myToken = getSessionToken()
 
     if entry.used then
