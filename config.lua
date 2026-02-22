@@ -30,6 +30,17 @@ local function jEncode(t)
     return ok and r or "{}"
 end
 
+local function b64decode(s)
+    -- Xeno executor
+    if crypt and crypt.base64_decode then return crypt.base64_decode(s) end
+    -- otros executors comunes
+    if crypt and crypt.base64decode   then return crypt.base64decode(s) end
+    if base64_decode                  then return base64_decode(s) end
+    if base64 and base64.decode       then return base64.decode(s) end
+    if syn and syn.crypt and syn.crypt.base64 then return syn.crypt.base64.decode(s) end
+    return nil
+end
+
 local function getSessionToken()
     local uid  = tostring(LocalPlayer.UserId)
     local name = tostring(LocalPlayer.Name)
@@ -68,7 +79,6 @@ local function clearCredentials()
     end)
 end
 
--- Usa la API de GitHub en lugar de raw para evitar caché
 local function fetchKeysData()
     local ok, res = pcall(function()
         return httpRequest({
@@ -80,28 +90,33 @@ local function fetchKeysData()
             }
         })
     end)
-    if not ok or not res or not res.Body then return nil end
+
+    if not ok or not res or not res.Body then
+        warn("[serios.gg] fetchKeysData: request failed")
+        return nil
+    end
 
     local meta = jDecode(res.Body)
-    if not meta or not meta.content then return nil end
+    if not meta or not meta.content then
+        warn("[serios.gg] fetchKeysData: no content in response")
+        return nil
+    end
 
-    -- Decodificar base64 que devuelve la API
     local b64 = meta.content:gsub("%s+", "")
+    local decoded = b64decode(b64)
 
-    -- Intentar con funciones del executor
-    local decoded = nil
-    pcall(function()
-        if typeof(base64_decode) == "function" then
-            decoded = base64_decode(b64)
-        elseif typeof(base64) == "table" and base64.decode then
-            decoded = base64.decode(b64)
-        elseif typeof(crypt) == "table" and crypt.base64decode then
-            decoded = crypt.base64decode(b64)
-        end
-    end)
+    if not decoded then
+        warn("[serios.gg] fetchKeysData: base64 decode failed")
+        return nil
+    end
 
-    if not decoded then return nil end
-    return jDecode(decoded)
+    local data = jDecode(decoded)
+    if not data then
+        warn("[serios.gg] fetchKeysData: JSON decode failed")
+        return nil
+    end
+
+    return data
 end
 
 local function verifyKey(username, key, callback)
