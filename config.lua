@@ -31,12 +31,10 @@ local function jEncode(t)
 end
 
 local function b64decode(s)
-    -- Xeno executor
-    if crypt and crypt.base64_decode then return crypt.base64_decode(s) end
-    -- otros executors comunes
-    if crypt and crypt.base64decode   then return crypt.base64decode(s) end
-    if base64_decode                  then return base64_decode(s) end
-    if base64 and base64.decode       then return base64.decode(s) end
+    if crypt and crypt.base64_decode  then return crypt.base64_decode(s)        end
+    if crypt and crypt.base64decode   then return crypt.base64decode(s)          end
+    if base64_decode                  then return base64_decode(s)               end
+    if base64 and base64.decode       then return base64.decode(s)               end
     if syn and syn.crypt and syn.crypt.base64 then return syn.crypt.base64.decode(s) end
     return nil
 end
@@ -53,10 +51,15 @@ local function getSessionToken()
     return string.format("%x", hash) .. "_" .. uid
 end
 
-local function saveCredentials(username, key)
+-- Guarda username, key Y expiry para que settings.lua pueda leerlos
+local function saveCredentials(username, key, expiry)
     if not canSave then return end
     pcall(function()
-        writefile(SAVE_FILE, jEncode({ username = username, key = key }))
+        writefile(SAVE_FILE, jEncode({
+            username = username,
+            key      = key,
+            expiry   = expiry or "lifetime"
+        }))
     end)
 end
 
@@ -102,7 +105,7 @@ local function fetchKeysData()
         return nil
     end
 
-    local b64 = meta.content:gsub("%s+", "")
+    local b64     = meta.content:gsub("%s+", "")
     local decoded = b64decode(b64)
 
     if not decoded then
@@ -117,6 +120,17 @@ local function fetchKeysData()
     end
 
     return data
+end
+
+-- Convierte ISO date "2025-03-01T12:00:00..." a unix epoch
+local function isoToEpoch(isoStr)
+    if not isoStr or isoStr == "null" or isoStr == "" then return nil end
+    local y, mo, d, h, mi, s = isoStr:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
+    if not y then return nil end
+    return os.time({
+        year  = tonumber(y),  month  = tonumber(mo), day = tonumber(d),
+        hour  = tonumber(h),  min    = tonumber(mi),  sec = tonumber(s)
+    })
 end
 
 local function verifyKey(username, key, callback)
@@ -140,18 +154,10 @@ local function verifyKey(username, key, callback)
     end
 
     -- Expiry check
-    if entry.expires_at and entry.expires_at ~= "null" then
-        local y, mo, d, h, mi, s = entry.expires_at:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
-        if y then
-            local expEpoch = os.time({
-                year = tonumber(y), month = tonumber(mo), day = tonumber(d),
-                hour = tonumber(h), min  = tonumber(mi), sec = tonumber(s)
-            })
-            if os.time() > expEpoch then
-                callback(false, "key_expired")
-                return
-            end
-        end
+    local expEpoch = isoToEpoch(entry.expires_at)
+    if expEpoch and os.time() > expEpoch then
+        callback(false, "key_expired")
+        return
     end
 
     -- Session lock check
@@ -166,12 +172,14 @@ local function verifyKey(username, key, callback)
             callback(false, "username_mismatch")
             return
         end
-        saveCredentials(username, key)
+        -- Guardar con expiry actualizado
+        saveCredentials(username, key, expEpoch and tostring(expEpoch) or "lifetime")
         callback(true, "welcome_back")
         return
     end
 
-    saveCredentials(username, key)
+    -- Primera vez: guardar con expiry
+    saveCredentials(username, key, expEpoch and tostring(expEpoch) or "lifetime")
     callback(true, "verified")
 end
 
