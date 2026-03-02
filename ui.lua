@@ -9,22 +9,22 @@ local Config
 local content
 local httpOk = pcall(function() content = game:HttpGet(CONFIG_URL) end)
 if not httpOk or not content or content == "" then
-    warn("[checktheblox] Failed to download config.lua")
+    warn("[checktheprint] Failed to download config.lua")
     return
 end
 local fn, compErr = _loadstring(content)
 if not fn then
-    warn("[checktheblox] Failed to compile config.lua: " .. tostring(compErr))
+    warn("[checktheprint] Failed to compile config.lua: " .. tostring(compErr))
     return
 end
 local runOk, runResult = pcall(fn)
 if not runOk then
-    warn("[checktheblox] Failed to execute config.lua: " .. tostring(runResult))
+    warn("[checktheprint] Failed to execute config.lua: " .. tostring(runResult))
     return
 end
 Config = runResult
-if not Config then warn("[checktheblox] config.lua did not return a value") return end
-if not Config.httpReady then warn("[checktheblox] HTTP not available in this executor.") return end
+if not Config then warn("[checktheprint] config.lua did not return a value") return end
+if not Config.httpReady then warn("[checktheprint] HTTP not available in this executor.") return end
 
 local Players      = game:GetService("Players")
 local UIS          = game:GetService("UserInputService")
@@ -115,7 +115,7 @@ local rdot = mk("Frame", {
 rnd(5, rdot)
 
 local title1 = mk("TextLabel", {
-    Text = "checktheblox", Font = Enum.Font.GothamBold, TextSize = 13,
+    Text = "checktheprint", Font = Enum.Font.GothamBold, TextSize = 13,
     TextColor3 = C.WHITE, BackgroundTransparency = 1,
     Size = UDim2.new(0, 100, 0, TH), Position = UDim2.new(0, 30, 0, 0),
     TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 8,
